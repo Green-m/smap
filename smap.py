@@ -212,19 +212,26 @@ def prettyPrint(disData):
 
 	return(totBC, totACS)		
 
+def objdump():
+	import platform
+	if platform.system() == 'Darwin':
+		return 'gobjdump'
+	else:
+		return 'objdump'
 
 def disassemble(fname, arch, syntax):
 	disData = []
+	objpath = objdump()
 	print(pyc.Info(pyc.Imp("Disassembly info")))
 	print("\t-> File name=%s%s%s")%(pyc.Fore("blue"),fname.split('/')[1],pyc.Style("normal"))
 	print("\t-> Architecture=%s%s%s")%(pyc.Fore("blue"),arch,pyc.Style("normal"))
 	print("\t-> Syntax=%s%s%s")%(pyc.Fore("blue"),syntax,pyc.Style("normal"))
 	if(syntax=="AT&T"):
-		cmdArg = ['objdump','-D','-b','binary','-m',arch,fname]
+		cmdArg = [objpath,'-D','-b','binary','-m',arch,fname]
 	else:
-		cmdArg = ['objdump','-D','-b','binary','-m',arch,'-M','intel',fname]
+		cmdArg = [objpath,'-D','-b','binary','-m',arch,'-M','intel',fname]
 	
-	Fsections = Popen(['objdump','-h','-b','binary',fname], stdout=PIPE, stderr=PIPE)
+	Fsections = Popen([objpath,'-h','-b','binary',fname], stdout=PIPE, stderr=PIPE)
 	sectionOut, sectionErr = Fsections.communicate()
 	if sectionErr:pass
 	else:sectionOut = re.findall(r'\.\w+\s',sectionOut)
